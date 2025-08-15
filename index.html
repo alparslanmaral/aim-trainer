@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Basit 3D FPS - Dolaşma</title>
+    <title>Basit 3D FPS - Dolaşma (Multiplayer)</title>
     <link rel="stylesheet" href="./styles.css" />
 
     <!-- THREE için import map -->
@@ -29,7 +29,7 @@
         <button id="startButton">Oyuna Başla</button>
       </div>
       <div class="note">
-        Not: Bu demo yalnızca dolaşma içindir. Basit çarpışma ve yer çekimi uygulanmıştır.
+        Not: Demo, Socket.IO ile online. Aynı bağlantıdaki herkes birbirini görür.
       </div>
     </div>
 
@@ -38,6 +38,8 @@
       <div id="info"></div>
     </div>
 
+    <!-- Socket.IO client (sunucudan) -->
+    <script src="/socket.io/socket.io.js"></script>
     <!-- main.js modül olarak -->
     <script type="module" src="./main.js"></script>
   </body>
