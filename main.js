@@ -1,8 +1,8 @@
 // Basit 3D FPS "dolaşma" demosu
 // WASD hareket, Fare ile bakış, Space zıplama, Shift koşma
 
-import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
-import { PointerLockControls } from 'https://unpkg.com/three@0.160.0/examples/jsm/controls/PointerLockControls.js';
+import * as THREE from 'three';
+import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 
 let scene, camera, renderer, controls;
 let clock = new THREE.Clock();
