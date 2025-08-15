@@ -45,11 +45,10 @@ function init() {
 
   // Camera
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 500);
-  // Kamera, controls.getObject() içine çocuk olarak yerleşecek; göz yüksekliğini kamera yerel Y'sine koyacağız.
   camera.position.set(0, eyeHeight, 0);
 
-  // Controls (Pointer Lock)
-  controls = new PointerLockControls(camera, document.body);
+  // Controls (Pointer Lock) — hedefi renderer.domElement yap
+  controls = new PointerLockControls(camera, renderer.domElement);
   scene.add(controls.getObject());
   // Başlangıç konumu (XZ), ayaklar zeminde
   controls.getObject().position.set(0, 0, 10);
@@ -57,9 +56,31 @@ function init() {
 
   const overlay = document.getElementById('overlay');
   const startButton = document.getElementById('startButton');
-  startButton.addEventListener('click', () => controls.lock());
-  controls.addEventListener('lock', () => (overlay.hidden = true));
-  controls.addEventListener('unlock', () => (overlay.hidden = false));
+  const noteEl = overlay.querySelector('.note');
+
+  // Başlat
+  startButton.addEventListener('click', () => {
+    // Bazı tarayıcılarda sadece tıklanan elemana yapılan istek kabul edilir;
+    // PointerLockControls lock, domElement.requestPointerLock() çağırır.
+    controls.lock();
+  });
+
+  // Pointer lock olayları
+  controls.addEventListener('lock', () => {
+    overlay.hidden = true;
+    setInfoText(true);
+  });
+  controls.addEventListener('unlock', () => {
+    overlay.hidden = false;
+    setInfoText(false);
+  });
+
+  // Hata/uyarı geri bildirimi
+  document.addEventListener('pointerlockerror', () => {
+    if (noteEl) {
+      noteEl.textContent = 'Pointer Lock başarısız. Tarayıcı izin vermedi veya desteklemiyor. Masaüstü bir tarayıcıda ve bir yerel sunucuda deneyin.';
+    }
+  });
 
   // Lights
   const hemi = new THREE.HemisphereLight(0xbcd6ff, 0x334155, 0.8);
@@ -82,15 +103,23 @@ function init() {
 
   // Grid helper (zeminde referans çizgiler)
   const grid = new THREE.GridHelper(400, 80, 0x5aa2e8, 0x294c66);
-  grid.material.opacity = 0.18;
-  grid.material.transparent = true;
+  // Bazı sürümlerde material dizi olabilir; her ikisini de ayarla
+  if (Array.isArray(grid.material)) {
+    grid.material.forEach((m) => {
+      m.opacity = 0.18;
+      m.transparent = true;
+    });
+  } else {
+    grid.material.opacity = 0.18;
+    grid.material.transparent = true;
+  }
   scene.add(grid);
 
   // Basit dekor: kutular ve kuleler
   createObstacles();
 
   // Bilgi
-  setInfoText();
+  setInfoText(false);
 
   // Input
   window.addEventListener('resize', onWindowResize);
@@ -109,12 +138,12 @@ function init() {
   );
 }
 
-function setInfoText() {
+function setInfoText(locked = false) {
   const el = infoEl();
   if (!el) return;
   el.innerHTML =
     'WASD: Hareket  |  Fare: Bakış  |  Space: Zıpla  |  Shift: Koş  |  ESC: Çıkış<br/>' +
-    'Basit çarpışma, yer çekimi ve sis uygulanmıştır.';
+    (locked ? 'Oyun aktif (Pointer Lock açık).' : 'Başlat’a tıklayın. Bazı tarayıcılarda yerel sunucuda çalıştırın.');
 }
 
 function rng(min, max) {
